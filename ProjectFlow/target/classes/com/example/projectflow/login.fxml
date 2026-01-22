@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.Font?>
+<BorderPane xmlns="http://javafx.com/javafx/17.0.2"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.LoginController"
+            style="-fx-background-color: #026aa7;">
+    <center>
+        <VBox alignment="CENTER" spacing="24">
+            <VBox alignment="CENTER" spacing="8">
+                <Label text="📋" style="-fx-font-size: 48;"/>
+                <Label text="ProjectFlow"
+                       style="-fx-text-fill: white;
+                              -fx-font-size: 32;
+                              -fx-font-weight: bold;"/>
+                <Label text="Управляйте проектами как в Trello"
+                       style="-fx-text-fill: rgba(255,255,255,0.8);
+                              -fx-font-size: 16;"/>
+            </VBox>
+            <VBox spacing="16" alignment="CENTER"
+                  style="-fx-background-color: white;
+                         -fx-background-radius: 8;
+                         -fx-padding: 32;
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 4);">
+                <Label text="Вход в ProjectFlow"
+                       style="-fx-font-size: 24;
+                              -fx-text-fill: #172b4d;
+                              -fx-font-weight: bold;"/>
+                <VBox spacing="8">
+                    <Label text="Имя пользователя"
+                           style="-fx-text-fill: #5e6c84; -fx-font-size: 14;"/>
+                    <TextField fx:id="usernameField" prefWidth="300" prefHeight="40"
+                               style="-fx-background-color: #fafbfc;
+                                      -fx-border-color: #dfe1e6;
+                                      -fx-border-radius: 3;
+                                      -fx-font-size: 14;
+                                      -fx-padding: 0 12;"
+                               onKeyReleased="#onFieldChanged"/>
+                </VBox>
+                <VBox spacing="8">
+                    <Label text="Пароль"
+                           style="-fx-text-fill: #5e6c84; -fx-font-size: 14;"/>
+                    <PasswordField fx:id="passwordField" prefWidth="300" prefHeight="40"
+                                   style="-fx-background-color: #fafbfc;
+                                          -fx-border-color: #dfe1e6;
+                                          -fx-border-radius: 3;
+                                          -fx-font-size: 14;
+                                          -fx-padding: 0 12;"
+                                   onKeyReleased="#onFieldChanged"/>
+                </VBox>
+                <Label fx:id="errorLabel"
+                       style="-fx-text-fill: #eb5a46;
+                              -fx-font-size: 14;"
+                       visible="false"/>
+                <HBox spacing="12">
+                    <Button fx:id="loginButton" text="Войти"
+                            prefWidth="144" prefHeight="40"
+                            style="-fx-background-color: #0079bf;
+                                   -fx-background-radius: 3;
+                                   -fx-text-fill: white;
+                                   -fx-font-weight: bold;
+                                   -fx-font-size: 14;"
+                            onAction="#handleLogin"/>
+                    <Button fx:id="registerButton" text="Регистрация"
+                            prefWidth="144" prefHeight="40"
+                            style="-fx-background-color: rgba(0,0,0,0.06);
+                                   -fx-background-radius: 3;
+                                   -fx-text-fill: #172b4d;
+                                   -fx-font-weight: bold;
+                                   -fx-font-size: 14;"
+                            onAction="#handleRegister"/>
+                </HBox>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

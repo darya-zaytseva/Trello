@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox xmlns="http://javafx.com/javafx/17.0.2"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.TaskDetailController"
+      spacing="0" prefWidth="800" prefHeight="600"
+      style="-fx-background-color: #f4f5f7;">
+    <HBox alignment="CENTER_LEFT" spacing="8"
+          style="-fx-background-color: white; -fx-padding: 12 24; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+        <Label fx:id="taskTitleLabel" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #172b4d;" maxWidth="400" wrapText="true"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button fx:id="toggleStatusButtonTop" text="Изменить статус" style="-fx-background-color: rgba(0,0,0,0.06); -fx-background-radius: 3; -fx-text-fill: #172b4d; -fx-font-weight: bold; -fx-font-size: 14;"/>
+        <Button fx:id="saveButton" text="Сохранить" style="-fx-background-color: #0079bf; -fx-background-radius: 3; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14;"/>
+        <Button fx:id="closeButton" text="✕" style="-fx-background-color: transparent; -fx-text-fill: #5e6c84; -fx-font-size: 16; -fx-font-weight: bold;"/>
+    </HBox>
+    <TabPane fx:id="detailTabs" style="-fx-background-color: white;" VBox.vgrow="ALWAYS">
+        <Tab text="📝 Описание">
+            <ScrollPane fitToWidth="true" style="-fx-background-color: white;">
+                <VBox spacing="16" style="-fx-padding: 16 24;">
+                    <HBox spacing="16">
+                        <VBox spacing="4"><Label text="Приоритет" style="-fx-text-fill: #5e6c84; -fx-font-size: 12;"/><Label fx:id="priorityLabel" text="СРЕДНИЙ" style="-fx-font-size: 14; -fx-font-weight: bold;"/></VBox>
+                        <VBox spacing="4"><Label text="Статус" style="-fx-text-fill: #5e6c84; -fx-font-size: 12;"/><Label fx:id="statusLabel" text="В работе" style="-fx-font-size: 14;"/></VBox>
+                        <VBox spacing="4"><Label text="Срок" style="-fx-text-fill: #5e6c84; -fx-font-size: 12;"/><HBox spacing="4" alignment="CENTER_LEFT"><Label fx:id="dueDateLabel" text="Без срока" style="-fx-font-size: 14;"/><Button fx:id="setDueDateButtonSmall" text="Изм." style="-fx-background-color: transparent; -fx-text-fill: #0079bf; -fx-font-size: 12;"/></HBox></VBox>
+                    </HBox>
+                    <Separator style="-fx-background-color: #e0e0e0;"/>
+                    <VBox spacing="8">
+                        <Label text="Описание" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #172b4d;"/>
+                        <TextArea fx:id="descriptionArea" wrapText="true" prefRowCount="6" style="-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-radius: 3; -fx-font-size: 14; -fx-padding: 12;" promptText="Добавьте описание..."/>
+                    </VBox>
+                    <VBox spacing="4"><Label text="Дополнительно" style="-fx-font-size: 14; -fx-text-fill: #5e6c84; -fx-font-weight: bold;"/><Label fx:id="createdLabel" text="" style="-fx-font-size: 12; -fx-text-fill: #5e6c84;"/></VBox>
+                </VBox>
+            </ScrollPane>
+        </Tab>
+        <Tab text="📎 Файлы">
+            <ScrollPane fitToWidth="true" style="-fx-background-color: white;">
+                <VBox fx:id="attachmentsContainer" spacing="12" style="-fx-padding: 16 24;"/>
+            </ScrollPane>
+        </Tab>
+    </TabPane>
+    <HBox spacing="8" alignment="CENTER_RIGHT" style="-fx-padding: 12 24; -fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-width: 1 0 0 0;">
+        <Button fx:id="setDueDateButton" text="📅 Изменить срок" style="-fx-background-color: rgba(0,0,0,0.06); -fx-background-radius: 3; -fx-text-fill: #172b4d; -fx-font-size: 14;"/>
+        <Button fx:id="toggleStatusButton" text="✅ Изменить статус" style="-fx-background-color: rgba(0,0,0,0.06); -fx-background-radius: 3; -fx-text-fill: #172b4d; -fx-font-size: 14;"/>
+        <Button fx:id="archiveButton" text="🗑️ Архивировать" style="-fx-background-color: rgba(235,90,70,0.1); -fx-background-radius: 3; -fx-text-fill: #eb5a46; -fx-font-size: 14;"/>
+    </HBox>
+</VBox>

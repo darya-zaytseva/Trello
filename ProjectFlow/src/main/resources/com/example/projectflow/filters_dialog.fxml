@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane prefHeight="600" prefWidth="650" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.FiltersController">
+    <top>
+        <Label maxWidth="Infinity" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: white;" styleClass="-fx-background-color: #0079bf; -fx-padding: 20;" text="Фильтры задач" textFill="#00c3ff" />
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: white;">
+            <VBox spacing="20" style="-fx-padding: 20;">
+                <VBox spacing="10">
+                    <Label style="-fx-font-size: 16; -fx-font-weight: bold;" text="🔍 Поиск" />
+                    <TextField fx:id="searchField" promptText="Введите текст для поиска..." style="-fx-font-size: 14;" />
+                </VBox>
+                <VBox spacing="10">
+                    <Label style="-fx-font-size: 16; -fx-font-weight: bold;" text="📊 Приоритет" />
+                    <FlowPane hgap="15" vgap="10">
+                        <CheckBox fx:id="priorityLow" text="Низкий" />
+                        <CheckBox fx:id="priorityMedium" text="Средний" />
+                        <CheckBox fx:id="priorityHigh" text="Высокий" />
+                        <CheckBox fx:id="priorityCritical" text="Критический" />
+                    </FlowPane>
+                </VBox>
+                <VBox spacing="10">
+                    <Label style="-fx-font-size: 16; -fx-font-weight: bold;" text="📅 Срок выполнения" />
+                    <VBox spacing="8">
+                        <RadioButton fx:id="dueDateAny" selected="true" text="Любой срок" />
+                        <RadioButton fx:id="dueDateToday" text="Сегодня" />
+                        <RadioButton fx:id="dueDateWeek" text="На этой неделе" />
+                        <RadioButton fx:id="dueDateOverdue" text="Просроченные" />
+                    </VBox>
+                </VBox>
+                <VBox spacing="10">
+                    <Label style="-fx-font-size: 16; -fx-font-weight: bold;" text="✓ Статус" />
+                    <VBox spacing="8">
+                        <RadioButton fx:id="statusAll" selected="true" text="Все задачи" />
+                        <RadioButton fx:id="statusActive" text="Только активные" />
+                        <RadioButton fx:id="statusCompleted" text="Только выполненные" />
+                    </VBox>
+                </VBox>
+                <VBox spacing="10">
+                    <Label style="-fx-font-size: 16; -fx-font-weight: bold;" text="⚡ Быстрые фильтры" />
+                    <HBox spacing="10">
+                        <Button fx:id="todayButton" onAction="#setQuickFilterToday" style="-fx-pref-width: 120;" text="Сегодня" />
+                        <Button fx:id="overdueButton" onAction="#setQuickFilterOverdue" style="-fx-pref-width: 120;" text="Просроченные" />
+                        <Button fx:id="completedButton" onAction="#setQuickFilterCompleted" style="-fx-pref-width: 120;" text="Выполненные" />
+                    </HBox>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" spacing="10" style="-fx-padding: 15;">
+            <Button fx:id="resetButton" onAction="#resetFilters" style="-fx-background-color: #5e6c84; -fx-text-fill: white;" text="Сбросить" />
+            <Button fx:id="applyButton" onAction="#applyFilters" style="-fx-background-color: #0079bf; -fx-text-fill: white; -fx-font-weight: bold;" text="Применить" />
+        </HBox>
+    </bottom>
+</BorderPane>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+<BorderPane xmlns="http://javafx.com/javafx/17.0.2"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.MembersController"
+            prefWidth="800" prefHeight="600">
+    <top>
+        <VBox spacing="5" style="-fx-background-color: #0079bf; -fx-padding: 20;">
+            <Label text="👥 Участники проекта"
+                   style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: white;"/>
+            <Label text="Управляйте участниками и их правами доступа"
+                   style="-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 14;"/>
+        </VBox>
+    </top>
+    <center>
+        <VBox spacing="20" style="-fx-padding: 20;">
+            <VBox spacing="15" style="-fx-background-color: #f4f5f7; -fx-padding: 15; -fx-background-radius: 5;">
+                <Label text="Пригласить нового участника"
+                       style="-fx-font-weight: bold; -fx-text-fill: #172b4d; -fx-font-size: 16;"/>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <TextField fx:id="inviteEmailField" promptText="Email участника..."
+                               style="-fx-pref-width: 300; -fx-pref-height: 35;"/>
+                    <ComboBox fx:id="roleCombo" promptText="Выберите роль"
+                              style="-fx-pref-height: 35;">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="Участник"/>
+                                <String fx:value="Администратор"/>
+                                <String fx:value="Наблюдатель"/>
+                            </FXCollections>
+                        </items>
+                    </ComboBox>
+                    <Button fx:id="inviteButton" text="Отправить приглашение"
+                            onAction="#inviteMember"
+                            style="-fx-background-color: #0079bf; -fx-text-fill: white; -fx-font-weight: bold;
+                                   -fx-pref-height: 35;"/>
+                </HBox>
+            </VBox>
+            <VBox spacing="10">
+                <Label text="Поиск участников" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+                <TextField fx:id="searchMemberField" promptText="Введите имя, email или роль..."
+                           style="-fx-font-size: 14;"/>
+            </VBox>
+            <VBox spacing="10">
+                <Label text="Текущие участники" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+                <TableView fx:id="membersTable" prefHeight="350"/>
+            </VBox>
+        </VBox>
+    </center>
+    <bottom>
+        <VBox spacing="5" style="-fx-padding: 15; -fx-background-color: #f4f5f7;">
+            <Label fx:id="projectOwnerLabel" style="-fx-font-weight: bold;"/>
+            <Label fx:id="totalMembersLabel" style="-fx-text-fill: #5e6c84;"/>
+        </VBox>
+    </bottom>
+</BorderPane>

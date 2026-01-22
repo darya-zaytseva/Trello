@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<VBox fx:id="columnContainer" xmlns="http://javafx.com/javafx/17.0.2"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.ColumnController"
+      spacing="0"
+      prefWidth="272"
+      minWidth="272"
+      maxWidth="272"
+      style="-fx-background-color: #f4f5f7; -fx-background-radius: 3;">
+    <HBox spacing="8" alignment="CENTER_LEFT"
+          style="-fx-padding: 10 10 4 10;">
+        <TextField fx:id="columnTitleField"
+                   style="-fx-background-color: transparent;
+                         -fx-border-color: transparent;
+                         -fx-font-weight: bold;
+                         -fx-font-size: 14;
+                         -fx-text-fill: #172b4d;
+                         -fx-padding: 2 0;
+                         -fx-pref-width: 180;"
+                   onAction="#handleTitleUpdate"/>
+        <HBox HBox.hgrow="ALWAYS" alignment="CENTER_RIGHT">
+            <Label fx:id="taskCountLabel" text="0"
+                   style="-fx-text-fill: #5e6c84;
+                          -fx-font-size: 12;
+                          -fx-padding: 4 8;
+                          -fx-background-color: rgba(0,0,0,0.1);
+                          -fx-background-radius: 12;"/>
+        </HBox>
+        <Button text="⋯" prefWidth="24" prefHeight="24"
+                style="-fx-background-color: transparent;
+                       -fx-text-fill: #5e6c84;
+                       -fx-font-size: 16;
+                       -fx-cursor: hand;
+                       -fx-padding: 0;"
+                onMouseEntered="#handleButtonHover"
+                onMouseExited="#handleButtonExit"
+                onAction="#handleMenu"/>
+    </HBox>
+    <ScrollPane vbarPolicy="AS_NEEDED" hbarPolicy="NEVER"
+                fitToWidth="true"
+                style="-fx-background-color: transparent;
+                      -fx-background: transparent;
+                      -fx-padding: 0 10 10 10;
+                      -fx-border-color: transparent;">
+        <VBox fx:id="tasksContainer" spacing="8" style="-fx-padding: 0;"/>
+    </ScrollPane>
+    <HBox style="-fx-padding: 0 10 10 10;" alignment="CENTER_LEFT" spacing="8">
+        <Button fx:id="addTaskButton" text="+ Добавить карточку"
+                prefWidth="200" prefHeight="36"
+                style="-fx-background-color: transparent;
+                       -fx-text-fill: #5e6c84;
+                       -fx-border-color: transparent;
+                       -fx-font-size: 14;
+                       -fx-cursor: hand;
+                       -fx-alignment: center-left;"
+                onMouseEntered="#handleButtonHover"
+                onMouseExited="#handleButtonExit"
+                onAction="#handleAddTask"/>
+        <Button text="+" prefWidth="36" prefHeight="36"
+                style="-fx-background-color: rgba(0,0,0,0.1);
+                       -fx-background-radius: 3;
+                       -fx-text-fill: #5e6c84;
+                       -fx-font-size: 16;
+                       -fx-font-weight: bold;
+                       -fx-cursor: hand;"
+                onMouseEntered="#handleButtonHover"
+                onMouseExited="#handleButtonExit"
+                onAction="#handleTemplateTask"/>
+    </HBox>
+</VBox>
