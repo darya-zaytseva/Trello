@@ -40,7 +40,10 @@ public class TaskDetailController {
     private AttachmentDAO attachmentDAO = new AttachmentDAO();
     private boolean isModified = false;
     private MainController mainController;
-    public void setMainController(MainController mainController) {this.mainController = mainController;}
+
+    public void setMainController(MainController mainController) {
+        this.mainController = mainController;
+    }
 
     @FXML
     public void initialize() {
@@ -69,7 +72,7 @@ public class TaskDetailController {
             toggleStatusButton.setOnAction(e -> handleToggleStatus());
         }
         if (archiveButton != null) {
-            archiveButton.setOnAction(e -> handleArchiveTask());
+            archiveButton.setOnAction(e -> handleArchiveTaskFromDetails());
         }
         if (setDueDateButtonSmall != null) {
             setDueDateButtonSmall.setOnAction(e -> handleSetDueDate());
@@ -166,6 +169,15 @@ public class TaskDetailController {
         this.task = task;
         updateUI();
         loadAttachments();
+        if (archiveButton != null) {
+            if (task.isArchived()) {
+                archiveButton.setText("Восстановить из архива");
+                archiveButton.setStyle("-fx-background-color: #0079bf; -fx-text-fill: white; -fx-font-weight: bold;");
+            } else {
+                archiveButton.setText("Архивировать задачу");
+                archiveButton.setStyle("-fx-background-color: #5e6c84; -fx-text-fill: white; -fx-font-weight: bold;");
+            }
+        }
     }
 
     private void updateUI() {
@@ -227,6 +239,9 @@ public class TaskDetailController {
             if (taskDAO.update(task)) {
                 updateUI();
                 showSuccess("Срок установлен");
+                if (mainController != null) {
+                    mainController.refreshBoard();
+                }
             }
         });
     }
@@ -246,21 +261,41 @@ public class TaskDetailController {
     }
 
     @FXML
-    public void handleArchiveTask() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Архивация задачи");
-        alert.setHeaderText("Архивировать задачу?");
-        alert.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
-                if (taskDAO.archiveTask(task.getId())) {
-                    showSuccess("Задача перемещена в архив");
-                    if (mainController != null) {
-                        mainController.refreshBoard();
+    public void handleArchiveTaskFromDetails() {
+        if (task == null) return;
+        if (task.isArchived()) {
+            Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmAlert.setTitle("Восстановление задачи");
+            confirmAlert.setHeaderText("Восстановить задачу из архива?");
+            confirmAlert.setContentText("Задача '" + task.getTitle() + "' будет возвращена на исходную доску.");
+            confirmAlert.showAndWait().ifPresent(response -> {
+                if (response == ButtonType.OK) {
+                    if (taskDAO.restoreTask(task.getId())) {
+                        showSuccess("Задача восстановлена из архива: " + task.getTitle());
+                        if (mainController != null) {
+                            mainController.refreshBoard();
+                        }
+                        handleClose();
                     }
-                    handleClose();
                 }
-            }
-        });
+            });
+        } else {
+            Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmAlert.setTitle("Архивация задачи");
+            confirmAlert.setHeaderText("Архивировать задачу?");
+            confirmAlert.setContentText("Задача '" + task.getTitle() + "' будет перемещена в архив.\n\nВы сможете восстановить её позже из раздела 'Архив'.");
+            confirmAlert.showAndWait().ifPresent(response -> {
+                if (response == ButtonType.OK) {
+                    if (taskDAO.archiveTask(task.getId())) {
+                        showSuccess("Задача перемещена в архив: " + task.getTitle());
+                        if (mainController != null) {
+                            mainController.refreshBoard();
+                        }
+                        handleClose();
+                    }
+                }
+            });
+        }
     }
 
     @FXML
