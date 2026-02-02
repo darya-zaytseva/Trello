@@ -14,6 +14,7 @@ import dao.ProjectDAO;
 import dao.TaskDAO;
 import dao.DatabaseConnection;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -26,6 +27,8 @@ import javafx.scene.paint.Color;
 import javafx.stage.Window;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +55,9 @@ public class MainController {
     private ColumnDAO columnDAO = new ColumnDAO();
     private TaskDAO taskDAO = new TaskDAO();
 
+    private static final DateTimeFormatter DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+
     @FXML
     public void initialize() {
         System.out.println("MainController инициализирован");
@@ -68,6 +74,8 @@ public class MainController {
     @FXML
     private void toggleArchiveView() {
         showArchive = !showArchive;
+        System.out.println("Переключение режима архива. Показать архив: " + showArchive);
+        System.out.println("Текущий проект: " + (currentProject != null ? currentProject.getTitle() : "null"));
         archiveTabButton.setText(showArchive ? "📋 Доска" : "📁 Архив");
         loadColumns();
     }
@@ -227,11 +235,13 @@ public class MainController {
         if (kanbanBoard == null) return;
         kanbanBoard.getChildren().clear();
         if (currentProject == null) return;
+        System.out.println("Загрузка столбцов. Режим архива: " + showArchive);
         if (showArchive) {
-            loadArchivedColumns();
+            loadArchivedTasks();
             return;
         }
         List<Column> columns = columnDAO.findByProjectId(currentProject.getId());
+        System.out.println("Найдено активных колонок: " + columns.size());
         for (Column column : columns) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/projectflow/column.fxml"));
@@ -247,35 +257,157 @@ public class MainController {
         addCreateColumnButton();
     }
 
-    private void loadArchivedColumns() {
+    private void loadArchivedTasks() {
+        System.out.println("Загрузка архивных задач для проекта ID: " + currentProject.getId());
+        List<Task> archivedTasks = taskDAO.findArchivedTasksByProjectId(currentProject.getId());
+        System.out.println("Найдено архивных задач: " + archivedTasks.size());
         VBox archiveHeader = new VBox(10);
-        archiveHeader.setPadding(new Insets(20));
-        archiveHeader.setStyle("-fx-background-color: white; -fx-background-radius: 8;");
-        archiveHeader.setPrefWidth(300);
-        Label archiveTitle = new Label("📦 Архив колонок");
+        archiveHeader.setPadding(new Insets(20, 20, 15, 20));
+        archiveHeader.setStyle("-fx-background-color: white; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 2);");
+        archiveHeader.setPrefWidth(800);
+        Label archiveTitle = new Label("📦 Архив задач");
         archiveTitle.setStyle("-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #172b4d;");
-        archiveHeader.getChildren().add(archiveTitle);
+        Label archiveInfo = new Label("Здесь отображаются все архивированные задачи проекта");
+        archiveInfo.setStyle("-fx-text-fill: #5e6c84; -fx-font-size: 14;");
+        Label taskCountLabel = new Label("Всего задач в архиве: " + archivedTasks.size());
+        taskCountLabel.setStyle("-fx-text-fill: #0079bf; -fx-font-weight: bold; -fx-font-size: 16;");
+        archiveHeader.getChildren().addAll(archiveTitle, archiveInfo, taskCountLabel);
         kanbanBoard.getChildren().add(archiveHeader);
-        List<Column> archivedColumns = columnDAO.findArchivedByProjectId(currentProject.getId());
-        if (archivedColumns.isEmpty()) {
-            Label emptyLabel = new Label("В архиве пока нет колонок");
-            emptyLabel.setStyle("-fx-font-size: 16; -fx-text-fill: #5e6c84;");
-            emptyLabel.setPadding(new Insets(40, 0, 0, 20));
-            kanbanBoard.getChildren().add(emptyLabel);
+        if (archivedTasks.isEmpty()) {
+            VBox emptyArchiveBox = new VBox(20);
+            emptyArchiveBox.setPadding(new Insets(40, 20, 20, 20));
+            emptyArchiveBox.setAlignment(Pos.CENTER);
+            Label emptyLabel = new Label("📭 Архив пуст");
+            emptyLabel.setStyle("-fx-font-size: 18; -fx-text-fill: #5e6c84;");
+            Label hintLabel = new Label("Чтобы добавить задачу в архив, нажмите на кнопку '🗑️ Архивировать' \nв контекстном меню задачи на основной доске");
+            hintLabel.setStyle("-fx-text-fill: #5e6c84; -fx-font-size: 14; -fx-alignment: center;");
+            hintLabel.setWrapText(true);
+            emptyArchiveBox.getChildren().addAll(emptyLabel, hintLabel);
+            kanbanBoard.getChildren().add(emptyArchiveBox);
             return;
         }
-        for (Column column : archivedColumns) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/projectflow/column.fxml"));
-                VBox columnBox = loader.load();
-                ColumnController controller = loader.getController();
-                controller.setColumn(column, this);
-                controller.setAddTaskButtonVisible(false);
-                kanbanBoard.getChildren().add(columnBox);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        VBox archivedTasksContainer = new VBox(10);
+        archivedTasksContainer.setPadding(new Insets(20, 20, 20, 40));
+        archivedTasksContainer.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 8;");
+        Label tasksHeader = new Label("Архивированные задачи:");
+        tasksHeader.setStyle("-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #172b4d; -fx-padding: 0 0 10 0;");
+        archivedTasksContainer.getChildren().add(tasksHeader);
+        for (Task task : archivedTasks) {
+            VBox taskCard = createArchivedTaskCard(task);
+            archivedTasksContainer.getChildren().add(taskCard);
         }
+
+        kanbanBoard.getChildren().add(archivedTasksContainer);
+    }
+    private VBox createArchivedTaskCard(Task task) {
+        VBox taskCard = new VBox(10);
+        taskCard.setPadding(new Insets(15));
+        taskCard.setStyle("-fx-background-color: white; -fx-background-radius: 5; " +
+                "-fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-border-radius: 5; " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 2, 0, 0, 1);");
+        taskCard.setPrefWidth(750);
+        HBox topRow = new HBox();
+        topRow.setAlignment(Pos.CENTER_LEFT);
+        topRow.setSpacing(10);
+        Label titleLabel = new Label(task.getTitle());
+        titleLabel.setStyle("-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #172b4d;");
+        Label priorityLabel = new Label(getPriorityText(task.getPriority()));
+        priorityLabel.setStyle(String.format(
+                "-fx-background-color: %s; -fx-text-fill: %s; " +
+                        "-fx-font-size: 11; -fx-font-weight: bold; " +
+                        "-fx-padding: 2 6; -fx-background-radius: 3;",
+                getPriorityColor(task.getPriority()),
+                getPriorityTextColor(task.getPriority())
+        ));
+        String updatedText = "";
+        if (task.getUpdatedAt() != null) {
+            updatedText = "Архивировано: " + task.getUpdatedAt().format(DATE_FORMATTER);
+        }
+        Label dateLabel = new Label(updatedText);
+        dateLabel.setStyle("-fx-text-fill: #5e6c84; -fx-font-size: 12;");
+        topRow.getChildren().addAll(titleLabel, priorityLabel);
+        HBox.setHgrow(dateLabel, javafx.scene.layout.Priority.ALWAYS);
+        topRow.getChildren().add(dateLabel);
+        Label descriptionLabel = new Label(task.getDescription() != null ? task.getDescription() : "Нет описания");
+        descriptionLabel.setStyle("-fx-text-fill: #5e6c84; -fx-font-size: 14;");
+        descriptionLabel.setWrapText(true);
+        descriptionLabel.setMaxWidth(700);
+        Column column = columnDAO.findById(task.getColumnId());
+        String columnInfo = column != null ? "Исходная колонка: " + column.getTitle() : "Колонка не найдена";
+        Label columnLabel = new Label(columnInfo);
+        columnLabel.setStyle("-fx-text-fill: #5e6c84; -fx-font-size: 12; -fx-font-style: italic;");
+        HBox actionsRow = new HBox(10);
+        actionsRow.setAlignment(Pos.CENTER_RIGHT);
+        Button restoreButton = new Button("↩ Восстановить");
+        restoreButton.setStyle("-fx-background-color: #0079bf; -fx-text-fill: white; " +
+                "-fx-font-weight: bold; -fx-padding: 5 15; -fx-cursor: hand;");
+        restoreButton.setOnAction(e -> handleRestoreTask(task));
+        Button deleteButton = new Button("🗑️ Удалить навсегда");
+        deleteButton.setStyle("-fx-background-color: #eb5a46; -fx-text-fill: white; " +
+                "-fx-font-weight: bold; -fx-padding: 5 15; -fx-cursor: hand;");
+        deleteButton.setOnAction(e -> handleDeleteArchivedTask(task));
+        actionsRow.getChildren().addAll(restoreButton, deleteButton);
+        taskCard.getChildren().addAll(topRow, descriptionLabel, columnLabel, actionsRow);
+
+        return taskCard;
+    }
+
+    private void handleRestoreTask(Task task) {
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Восстановление задачи");
+        confirmAlert.setHeaderText("Восстановить задачу?");
+        confirmAlert.setContentText("Задача '" + task.getTitle() + "' будет возвращена на исходную доску.");
+        confirmAlert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                if (taskDAO.restoreTask(task.getId())) {
+                    showSuccess("Задача восстановлена: " + task.getTitle());
+                    loadColumns(); // Обновляем вид
+                } else {
+                    showError("Ошибка при восстановлении задачи");
+                }
+            }
+        });
+    }
+
+    private void handleDeleteArchivedTask(Task task) {
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Удаление задачи");
+        confirmAlert.setHeaderText("Удалить задачу навсегда?");
+        confirmAlert.setContentText("Задача '" + task.getTitle() + "' будет удалена без возможности восстановления.\n\nЭто действие нельзя отменить!");
+        confirmAlert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                if (taskDAO.delete(task.getId())) {
+                    showSuccess("Задача удалена: " + task.getTitle());
+                    loadColumns(); // Обновляем вид
+                } else {
+                    showError("Ошибка при удалении задачи");
+                }
+            }
+        });
+    }
+
+    private String getPriorityText(Task.Priority priority) {
+        switch (priority) {
+            case LOW: return "НИЗКИЙ";
+            case MEDIUM: return "СРЕДНИЙ";
+            case HIGH: return "ВЫСОКИЙ";
+            case CRITICAL: return "КРИТИЧЕСКИЙ";
+            default: return "НЕТ";
+        }
+    }
+
+    private String getPriorityColor(Task.Priority priority) {
+        switch (priority) {
+            case LOW: return "#61bd4f";
+            case MEDIUM: return "#f2d600";
+            case HIGH: return "#ff9f1a";
+            case CRITICAL: return "#eb5a46";
+            default: return "#5e6c84";
+        }
+    }
+
+    private String getPriorityTextColor(Task.Priority priority) {
+        return priority == Task.Priority.MEDIUM ? "#172b4d" : "white";
     }
 
     private void createSimpleColumn(Column column) {
@@ -554,7 +686,6 @@ public class MainController {
         dialog.setTitle("Новая колонка");
         dialog.setHeaderText("Добавить новую колонку на доску");
         dialog.setContentText("Название:");
-
         dialog.showAndWait().ifPresent(columnName -> {
             if (!columnName.trim().isEmpty()) {
                 Column column = new Column(currentProject.getId(), columnName.trim(),
@@ -613,7 +744,7 @@ public class MainController {
     public User getCurrentUser() { return currentUser; }
     public ColumnDAO getColumnDAO() { return columnDAO; }
     public void setCurrentProject(Project project) { this.currentProject = project; }
-    public void refreshBoard() {loadColumns();}
+    public void refreshBoard() { loadColumns(); }
 
     @FXML
     public void handleUserMenu() {
