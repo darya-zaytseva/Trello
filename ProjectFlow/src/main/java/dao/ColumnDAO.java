@@ -145,10 +145,6 @@ public class ColumnDAO {
         return false;
     }
 
-    public boolean deletePermanently(int id) {
-        return delete(id);
-    }
-
     public boolean deleteByProjectId(int projectId) {
         String sql = "DELETE FROM columns WHERE project_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
