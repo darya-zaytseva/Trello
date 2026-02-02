@@ -2,6 +2,7 @@ package dao;
 
 import models.Task;
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +41,7 @@ public class TaskDAO {
         return null;
     }
 
-    public List<Task> findArchivedByProjectId(int projectId) {
+    public List<Task> findArchivedTasksByProjectId(int projectId) {
         List<Task> tasks = new ArrayList<>();
         String sql = "SELECT t.* FROM tasks t " +
                 "JOIN columns c ON t.column_id = c.id " +
@@ -65,7 +66,9 @@ public class TaskDAO {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, taskId);
-            return stmt.executeUpdate() > 0;
+            int result = stmt.executeUpdate();
+            System.out.println("Задача ID=" + taskId + " архивирована. Затронуто строк: " + result);
+            return result > 0;
         } catch (SQLException e) {
             System.err.println("Ошибка при архивации задачи: " + e.getMessage());
             e.printStackTrace();
@@ -78,7 +81,9 @@ public class TaskDAO {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, taskId);
-            return stmt.executeUpdate() > 0;
+            int result = stmt.executeUpdate();
+            System.out.println("Задача ID=" + taskId + " восстановлена. Затронуто строк: " + result);
+            return result > 0;
         } catch (SQLException e) {
             System.err.println("Ошибка при восстановлении задачи: " + e.getMessage());
             e.printStackTrace();
