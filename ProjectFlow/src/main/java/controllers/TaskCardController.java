@@ -285,19 +285,12 @@ public class TaskCardController {
             }
         });
         MenuItem archiveItem = new MenuItem("🗑️ Архивировать");
-        archiveItem.setOnAction(e -> {
-            task.setArchived(true);
-            if (taskDAO.update(task)) {
-                if (columnController != null) {
-                    columnController.refresh();
-                }
-            }
-        });
-        MenuItem deleteItem = new MenuItem("❌ Удалить");
+        archiveItem.setOnAction(e -> handleArchiveTask());
+        MenuItem deleteItem = new MenuItem("❌ Удалить навсегда");
         deleteItem.setOnAction(e -> {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Удаление задачи");
-            alert.setContentText("Удалить задачу '" + task.getTitle() + "'?");
+            alert.setContentText("Удалить задачу '" + task.getTitle() + "' безвозвратно?");
             alert.showAndWait().ifPresent(response -> {
                 if (response == ButtonType.OK) {
                     if (taskDAO.delete(task.getId())) {
@@ -310,6 +303,31 @@ public class TaskCardController {
         });
         menu.getItems().addAll(editItem, dueDateItem, new SeparatorMenuItem(), archiveItem, deleteItem);
         menu.show(menuButton, menuButton.localToScreen(0, 0).getX() + menuButton.getWidth(), menuButton.localToScreen(0, 0).getY());
+    }
+
+    private void handleArchiveTask() {
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Архивация задачи");
+        confirmAlert.setHeaderText("Архивировать задачу?");
+        confirmAlert.setContentText("Задача '" + task.getTitle() + "' будет перемещена в архив.\n\nВы сможете восстановить её позже из раздела 'Архив'.");
+        confirmAlert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                if (taskDAO.archiveTask(task.getId())) {
+                    System.out.println("Задача архивирована: " + task.getTitle() + " (ID: " + task.getId() + ")");
+                    if (columnController != null && columnController.getMainController() != null) {
+                        columnController.getMainController().showSuccess("Задача перемещена в архив: " + task.getTitle());
+                    }
+                    if (columnController != null) {
+                        columnController.refresh();
+                    }
+                } else {
+                    System.out.println("Ошибка при архивации задачи: " + task.getId());
+                    if (columnController != null && columnController.getMainController() != null) {
+                        columnController.getMainController().showError("Ошибка при архивации задачи");
+                    }
+                }
+            }
+        });
     }
 
     public Task getTask() {
